@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Forms</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      form {
+        background: #f0f0f0;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      input,
+      button {
+        margin: 5px 0;
+        padding: 5px 10px;
+      }
+      .result {
+        background: #e0f0e0;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Test Forms - Debug Page</h1>
+    <p>User: <%= user.username %> (ID: <%= user.id %>)</p>
+
+    <h2>Test 1: Simple Folder Creation</h2>
+    <form action="/add-folder" method="POST" id="form1">
+      <input
+        type="text"
+        name="folderName"
+        value="test-folder-<%= Date.now() %>"
+        required
+      />
+      <button type="submit">Create Folder (Should Redirect to /drive)</button>
+    </form>
+
+    <h2>Test 2: Test Redirect</h2>
+    <form action="/test-redirect" method="POST" id="form2">
+      <button type="submit">Test Redirect (Should go to /drive)</button>
+    </form>
+
+    <h2>Test 3: Test JSON Response</h2>
+    <form action="/test-json" method="POST" id="form3">
+      <button type="submit">Test JSON (Should show JSON)</button>
+    </form>
+
+    <hr />
+
+    <h2>Test 4: Your Original Modal Form (Outside Modal)</h2>
+    <form action="/add-folder" method="POST" id="form4">
+      <label for="folder-name">Folder Name:</label>
+      <input type="text" id="folder-name" name="folderName" required />
+      <button type="submit">Create Folder</button>
+    </form>
+
+    <hr />
+
+    <h2>Test 5: Manual Fetch Test (AJAX)</h2>
+    <button id="ajaxTest">Test AJAX Folder Creation</button>
+    <div id="ajaxResult" class="result"></div>
+
+    <hr />
+    <h2>Console Output:</h2>
+    <div
+      id="console-output"
+      style="
+        background: #000;
+        color: #0f0;
+        padding: 10px;
+        font-family: monospace;
+        min-height: 100px;
+      "
+    >
+      Console logs will appear here...<br />
+    </div>
+
+    <script>
+      // Capture console logs
+      const consoleDiv = document.getElementById("console-output");
+      const originalLog = console.log;
+      console.log = function (...args) {
+        originalLog.apply(console, args);
+        consoleDiv.innerHTML += args.join(" ") + "<br>";
+      };
+
+      console.log("Page loaded at:", new Date().toISOString());
+
+      // Log all form submissions
+      document.querySelectorAll("form").forEach((form, index) => {
+        console.log(`Found form ${index + 1}:`, form.id, form.action);
+
+        form.addEventListener("submit", (e) => {
+          console.log(`\n=== Form ${index + 1} (${form.id}) submitting ===`);
+          console.log("Action:", form.action);
+          console.log("Method:", form.method);
+
+          const formData = new FormData(form);
+          const data = {};
+          for (let [key, value] of formData.entries()) {
+            data[key] = value;
+          }
+          console.log("Data:", JSON.stringify(data));
+          console.log("Time:", new Date().toISOString());
+        });
+      });
+
+      // AJAX test
+      document
+        .getElementById("ajaxTest")
+        .addEventListener("click", async () => {
+          console.log("\n=== AJAX Test Starting ===");
+          const folderName = "ajax-test-" + Date.now();
+
+          try {
+            const response = await fetch("/add-folder", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: "folderName=" + encodeURIComponent(folderName),
+            });
+
+            console.log("Response status:", response.status);
+            console.log("Response type:", response.type);
+            console.log("Redirected:", response.redirected);
+            console.log("URL:", response.url);
+
+            const contentType = response.headers.get("content-type");
+            console.log("Content-Type:", contentType);
+
+            let result;
+            if (contentType && contentType.includes("application/json")) {
+              result = await response.json();
+              console.log("JSON Response:", JSON.stringify(result));
+            } else {
+              result = await response.text();
+              console.log("Text Response:", result.substring(0, 100) + "...");
+            }
+
+            document.getElementById("ajaxResult").style.display = "block";
+            document.getElementById("ajaxResult").innerHTML = `
+                    <strong>AJAX Result:</strong><br>
+                    Status: ${response.status}<br>
+                    Redirected: ${response.redirected}<br>
+                    Final URL: ${response.url}<br>
+                    Content: <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+          } catch (error) {
+            console.error("AJAX Error:", error);
+            document.getElementById("ajaxResult").style.display = "block";
+            document.getElementById("ajaxResult").innerHTML =
+              `Error: ${error.message}`;
+          }
+        });
+
+      // Check for messages in URL (in case of redirect with message)
+      if (window.location.search) {
+        console.log("URL params:", window.location.search);
+      }
+    </script>
+
+    <hr />
+    <a href="/drive">Back to Drive</a>
+  </body>
+</html>

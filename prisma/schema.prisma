@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  first_name String
+  last_name String
+  username String   @unique
+  password String
+
+  uploads  Upload[]
+  folders  Folder[]
+  files File[]
+}
+
+model Folder {
+  id          Int      @id @default(autoincrement())
+  name        String
+  userId      Int
+  parentId    Int?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  parent      Folder?  @relation("SubFolders", fields: [parentId], references: [id])
+  subFolders  Folder[] @relation("SubFolders")
+  uploads     Upload[]
+  files       File[]
+}
+
+model File {
+  id        Int      @id @default(autoincrement())
+  name      String
+  path      String
+  cloudUrl    String?  // Cloudinary URL
+  cloudId     String?  // Cloudinary public ID for deletion
+  size        Int
+  mimeType    String?  // File MIME type
+  createdAt DateTime @default(now())
+  userId    Int
+  folderId  Int?
+
+  user      User     @relation(fields: [userId], references: [id])
+  folder    Folder? @relation(fields: [folderId], references: [id])
+}
+
+model Upload {
+  id            Int      @id @default(autoincrement())
+  originalName  String
+  storedName    String
+  path          String
+  size          Int
+  createdAt     DateTime @default(now())
+  userId        Int
+  folderId      Int?
+
+  user          User     @relation(fields: [userId], references: [id])
+  folder        Folder?  @relation(fields: [folderId], references: [id])
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String   @db.Text
+  expiresAt   DateTime
+}

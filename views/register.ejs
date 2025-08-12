@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Register</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <!-- Navigation Header -->
+    <%- include('partials/menu') %>
+    <div class="content">
+      <form action="/register" method="POST" class="register-form">
+        <p class="register-title">Register</p>
+        <p class="register-message">
+          Sign up now and get full access to our app.
+        </p>
+        <!-- From Uiverse.io by Yaya12085 -->
+        <div class="register-flex">
+          <label for="first_name">
+            <input
+              required
+              type="text"
+              class="input"
+              name="first_name"
+              id="first_name"
+            />
+            <span>First Name</span>
+          </label>
+
+          <label for="last_name">
+            <input
+              required
+              type="text"
+              class="input"
+              name="last_name"
+              id="last_name"
+            />
+            <span>Last Name</span>
+          </label>
+        </div>
+
+        <label for="username"
+          ><input
+            required
+            placeholder=""
+            class="input"
+            id="username"
+            name="username"
+            type="text"
+          />
+          <span>Username</span>
+        </label>
+
+        <label for="password">
+          <input
+            required
+            placeholder=""
+            class="input"
+            id="password"
+            name="password"
+            type="password"
+          />
+          <span>Password</span>
+        </label>
+
+        <label for="passwordConfirmation">
+          <input
+            required
+            placeholder=""
+            class="input"
+            id="passwordConfirmation"
+            name="passwordConfirmation"
+            type="password"
+          />
+          <span>Confirm Password</span>
+        </label>
+
+        <button type="submit" class="register-submit">Register</button>
+        <p class="register-signin">
+          Already have an acount ? <a href="/log-in">Log in</a>
+        </p>
+      </form>
+    </div>
+  </body>
+</html>

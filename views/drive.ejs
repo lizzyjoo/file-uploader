@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drive</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <%- include('partials/menu') %>
+    <div class="content">
+      <%- include('partials/sidebar') %>
+      
+      <% if (locals.error) { %>
+        <div class="error-message" style="background: #fee; padding: 10px; margin: 10px; border: 1px solid #f00;">
+          <strong>Error:</strong> <%= error %>
+        </div>
+      <% } %>
+      
+      <div class="folders">
+        <h2>Folders</h2>
+        <ul class="folder-list">
+          <% if (typeof folders !== 'undefined' && folders && folders.length > 0) { %>
+            <% folders.forEach(folder => { %>
+              <li class="folder-div">
+                <a href="/drive/<%= folder.id %>" class="folder-link">
+                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#528960">
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <path d="M0 1H6L9 4H16V14H0V1Z" fill="#528960"></path>
+                    </g>
+                  </svg>
+                  <%= folder.name %>
+                  <small>(Created: <%= folder.createdAt.toDateString() %>)</small>
+                </a>
+              </li>
+            <% }) %>
+          <% } else { %>
+            <li>No folders yet.</li>
+          <% } %>
+        </ul>
+      </div>
+      
+      <div class="files">
+        <h2>Files</h2>
+        <ul class="file-list">
+          <% if (typeof files !== 'undefined' && files && files.length > 0) { %>
+            <% files.forEach(file => { %>
+              <li class="file-div">
+                <div class="file-item">
+                  <div class="file-info">
+                    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+                      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                      <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                      <g id="SVGRepo_iconCarrier">
+                        <path d="M7 0H2V16H14V7H7V0Z" fill="#565252"></path>
+                        <path d="M9 0V5H14L9 0Z" fill="#565252"></path>
+                      </g>
+                    </svg>
+                    <div class="file-details">
+                      <span class="file-name"><%= file.name %></span>
+                      <small class="file-meta">
+                        Uploaded: <%= file.createdAt.toDateString() %> | 
+                        ID: <%= file.id %>
+                      </small>
+                    </div>
+                  </div>
+                  
+                  <div class="file-actions">
+                    <a href="/file/<%= file.id %>" class="action-link" title="View Details">
+                      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000" width="20" height="20">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                          <g id="Complete">
+                            <g id="info-circle">
+                              <g>
+                                <circle cx="12" cy="12" data-name="--Circle" fill="none" id="_--Circle" r="10" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+                                <line fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="12" x2="12" y1="12" y2="16"></line>
+                                <line fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="12" x2="12" y1="8" y2="8"></line>
+                              </g>
+                            </g>
+                          </g>
+                        </g>
+                      </svg>
+                    </a>
+                    
+                    <a href="/file/<%= file.id %>/download" class="action-link" title="Download">
+                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                          <g id="Interface / Download">
+                            <path id="Vector" d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                          </g>
+                        </g>
+                      </svg>
+                    </a>
+                    
+                    <button onclick="deleteFile(<%= file.id %>)" class="action-link delete-btn" title="Delete">
+                      <svg fill="#000000" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                          <path d="M 27.9999 51.9063 C 41.0546 51.9063 51.9063 41.0781 51.9063 28 C 51.9063 14.9453 41.0312 4.0937 27.9765 4.0937 C 14.8983 4.0937 4.0937 14.9453 4.0937 28 C 4.0937 41.0781 14.9218 51.9063 27.9999 51.9063 Z M 27.9999 47.9219 C 16.9374 47.9219 8.1014 39.0625 8.1014 28 C 8.1014 16.9609 16.9140 8.0781 27.9765 8.0781 C 39.0155 8.0781 47.8983 16.9609 47.9219 28 C 47.9454 39.0625 39.0390 47.9219 27.9999 47.9219 Z M 22.2343 41.9687 L 33.7187 41.9687 C 35.3827 41.9687 36.3436 41.0547 36.4374 39.3906 L 37.3046 20.2656 L 38.6640 20.2656 C 39.2968 20.2656 39.8124 19.7266 39.8124 19.0937 C 39.8124 18.4375 39.2968 17.9219 38.6640 17.9219 L 33.3671 17.9219 L 33.3671 16.0234 C 33.3671 14.1953 32.1483 13.0469 30.4140 13.0469 L 25.5155 13.0469 C 23.7812 13.0469 22.5858 14.1953 22.5858 16.0234 L 22.5858 17.9219 L 17.2655 17.9219 C 16.6327 17.9219 16.0936 18.4375 16.0936 19.0937 C 16.0936 19.7266 16.6327 20.2656 17.2655 20.2656 L 18.6718 20.2656 L 19.5390 39.3906 C 19.6093 41.0547 20.5936 41.9687 22.2343 41.9687 Z M 24.9296 17.9219 L 24.9296 16.4688 C 24.9296 15.8359 25.3749 15.4141 26.0077 15.4141 L 29.8514 15.4141 C 30.5077 15.4141 30.9530 15.8359 30.9530 16.4688 L 30.9530 17.9219 Z M 23.6405 39.3906 C 23.1249 39.3906 22.7733 39.0156 22.7499 38.4531 L 22.1171 22.7266 C 22.0936 22.1875 22.4687 21.7890 23.0546 21.7890 C 23.5936 21.7890 23.9452 22.1641 23.9921 22.7266 L 24.5546 38.4297 C 24.5780 38.9922 24.2265 39.3906 23.6405 39.3906 Z M 27.9530 39.3672 C 27.3905 39.3672 26.9921 38.9922 26.9921 38.4297 L 26.9921 22.7266 C 26.9921 22.1875 27.3671 21.7890 27.9530 21.7890 C 28.5390 21.7890 28.9140 22.1875 28.9140 22.7266 L 28.9140 38.4297 C 28.9140 38.9922 28.5390 39.3672 27.9530 39.3672 Z M 32.2890 39.3906 C 31.7030 39.3906 31.3514 38.9922 31.3749 38.4297 L 31.9374 22.7266 C 31.9609 22.1641 32.3358 21.7890 32.8514 21.7890 C 33.4374 21.7890 33.8358 22.1875 33.8124 22.7266 L 33.1796 38.4531 C 33.1562 39.0156 32.8046 39.3906 32.2890 39.3906 Z"></path>
+                        </g>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </li>
+            <% }) %>
+          <% } else { %>
+            <li>No files yet.</li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+    
+    <script>
+    function deleteFile(fileId) {
+      if (confirm('Are you sure you want to delete this file?')) {
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/file/${fileId}/delete`;
+        document.body.appendChild(form);
+        form.submit();
+      }
+    }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= file.name %> - File Details</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <%- include('partials/menu') %>
+    <div class="content">
+        <%- include('partials/sidebar') %>
+        
+        <div class="file-details-container">
+            <div class="breadcrumb">
+                <a href="/drive">My Drive</a>
+                <% if (file.folder) { %>
+                    / <a href="/drive/<%= file.folder.id %>"><%= file.folder.name %></a>
+                <% } %>
+                / <%= file.name %>
+            </div>
+            
+            <div class="file-info">
+                <div class="file-icon">
+                    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <path d="M7 0H2V16H14V7H7V0Z" fill="#565252"></path>
+                            <path d="M9 0V5H14L9 0Z" fill="#565252"></path>
+                        </g>
+                    </svg>
+                </div>
+                
+                <h1><%= file.name %></h1>
+                
+                <div class="file-metadata">
+                    <p><strong>Size:</strong> <%= formatFileSize(file.size) %></p>
+                    <p><strong>Uploaded:</strong> <%= file.createdAt.toLocaleString() %></p>
+                    <% if (file.folder) { %>
+                        <p><strong>Folder:</strong> <%= file.folder.name %></p>
+                    <% } %>
+                    <p><strong>File ID:</strong> <%= file.id %></p>
+                </div>
+                
+                <div class="file-actions">
+                    <a href="/file/<%= file.id %>/download" class="btn btn-primary">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                        </svg>
+                        Download
+                    </a>
+                    
+                    <button class="btn btn-danger" onclick="deleteFile(<%= file.id %>)">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function deleteFile(fileId) {
+            if (confirm('Are you sure you want to delete this file?')) {
+                // Implement delete functionality
+                fetch(`/file/${fileId}/delete`, { method: 'POST' })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.href = '/drive';
+                        } else {
+                            alert('Failed to delete file');
+                        }
+                    });
+            }
+        }
+    </script>
+</body>
+</html>
+
+<%
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+%>
